@@ -42,11 +42,22 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 			cors: true,
 			// 跨域代理配置
 			proxy: {
+				"/api/bdg01": {
+					// 先匹配这个 这样可以兼容两个平台
+					target: "https://www.convercomm.com/api",
+					changeOrigin: true,
+					rewrite: path => path.replace(/^\/api\/bdg01/, "")
+				},
 				"/api": {
 					// target: "http://192.168.1.243:8000/v1", // easymock
 					target: "https://www.fastmock.site/mock/f81e8333c1a9276214bcdbc170d9e0a0", // fastmock
 					changeOrigin: true,
 					rewrite: path => path.replace(/^\/api/, "")
+				},
+				"/v1": {
+					target: "http://192.168.1.243:8000/v1",
+					changeOrigin: true,
+					rewrite: path => path.replace(/^\/v1/, "")
 				}
 			}
 		},

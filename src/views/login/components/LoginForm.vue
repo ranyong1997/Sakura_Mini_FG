@@ -14,6 +14,9 @@
 				</template>
 			</el-input>
 		</el-form-item>
+		<el-form-item prop="password">
+			<img v-if="imgsrc" :src="imgsrc" @click="refreshSRC" alt="" style="width: 200px; height: 200px" />
+		</el-form-item>
 	</el-form>
 	<div class="login-btn">
 		<el-button :icon="CircleClose" round @click="resetForm(loginFormRef)" size="large">重置</el-button>
@@ -38,11 +41,14 @@ import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import md5 from "js-md5";
+// import http from "@/api";
 
 const router = useRouter();
 const tabsStore = TabsStore();
 const keepAlive = KeepAliveStore();
 const globalStore = GlobalStore();
+
+const imgsrc = ref("/v1/captcha");
 
 // 定义 formRef（校验规则）
 type FormInstance = InstanceType<typeof ElForm>;
@@ -53,7 +59,7 @@ const loginRules = reactive({
 });
 
 const loading = ref(false);
-const loginForm = reactive<Login.ReqLoginForm>({ username: "", password: "" });
+const loginForm = reactive<Login.ReqLoginForm>({ username: "user", password: "123456" });
 const login = (formEl: FormInstance | undefined) => {
 	if (!formEl) return;
 	formEl.validate(async valid => {
@@ -61,6 +67,14 @@ const login = (formEl: FormInstance | undefined) => {
 		loading.value = true;
 		try {
 			// 1.执行登录接口
+
+			// let excelFormData = new FormData();
+			// excelFormData.append("username", loginForm.username);
+			// excelFormData.append("password", loginForm.password);
+			// const res = await http.post<Login.ResLogin>("/user/login", excelFormData, {
+			// 	headers: { noLoading: true, "Content-Type": "application/x-www-form-urlencoded" }
+			// });
+			// console.log(res);
 			const { data } = await loginApi({ ...loginForm, password: md5(loginForm.password) });
 			globalStore.setToken(data.access_token);
 
@@ -91,15 +105,22 @@ const resetForm = (formEl: FormInstance | undefined) => {
 	formEl.resetFields();
 };
 
+const refreshSRC = () => {
+	imgsrc.value = "";
+	setTimeout(() => {
+		imgsrc.value = "/v1/captcha";
+	}, 1000);
+};
+
 onMounted(() => {
 	// 监听enter事件（调用登录）
-	document.onkeydown = (e: any) => {
+	document.addEventListener("keyup", (e: any) => {
 		e = window.event || e;
 		if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
 			if (loading.value) return;
 			login(loginFormRef.value);
 		}
-	};
+	});
 });
 </script>
 

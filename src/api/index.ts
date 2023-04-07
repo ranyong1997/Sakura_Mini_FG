@@ -33,8 +33,10 @@ class RequestHttp {
 				const globalStore = GlobalStore();
 				// * 如果当前请求不需要显示 loading,在 api 服务中通过指定的第三个参数: { headers: { noLoading: true } }来控制不显示loading，参见loginApi
 				config.headers!.noLoading || showFullScreenLoading();
+				console.log(config.headers);
 				const token = globalStore.token;
-				return { ...config, headers: { ...config.headers, "x-access-token": token } };
+				console.log(token);
+				return { ...config, headers: { ...config.headers, "x-access-token": token, Authorization: `Bearer ${token}` } };
 			},
 			(error: AxiosError) => {
 				return Promise.reject(error);

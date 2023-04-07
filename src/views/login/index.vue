@@ -11,6 +11,7 @@
 					<h2 class="logo-text">Geeker-Admin</h2>
 				</div>
 				<LoginForm />
+				<loginjy />
 			</div>
 		</div>
 	</div>
@@ -19,6 +20,7 @@
 <script setup lang="ts" name="login">
 import SwitchDark from "@/components/SwitchDark/index.vue";
 import LoginForm from "./components/LoginForm.vue";
+import loginjy from "./components/loginjy.vue";
 </script>
 
 <style scoped lang="scss">

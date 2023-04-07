@@ -1,21 +1,21 @@
 <template>
 	<el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
 		<el-form-item prop="username">
-			<el-input v-model="loginForm.username" placeholder="用户名：admin / user">
+			<el-input v-model="loginForm.username" placeholder="用户名">
 				<template #prefix>
 					<el-icon class="el-input__icon"><user /></el-icon>
 				</template>
 			</el-input>
 		</el-form-item>
 		<el-form-item prop="password">
-			<el-input type="password" v-model="loginForm.password" placeholder="密码：123456" show-password autocomplete="new-password">
+			<el-input type="password" v-model="loginForm.password" placeholder="密码" show-password autocomplete="new-password">
 				<template #prefix>
 					<el-icon class="el-input__icon"><lock /></el-icon>
 				</template>
 			</el-input>
 		</el-form-item>
 		<el-form-item prop="password">
-			<img v-if="imgsrc" :src="imgsrc" @click="refreshSRC" alt="" style="width: 200px; height: 200px" />
+			<img v-if="imgsrc" :src="imgsrc" @click="refreshSRC" alt="" style="width: 103px; height: 40px" />
 		</el-form-item>
 	</el-form>
 	<div class="login-btn">
@@ -41,7 +41,7 @@ import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import md5 from "js-md5";
-// import http from "@/api";
+import http from "@/api";
 
 const router = useRouter();
 const tabsStore = TabsStore();
@@ -50,7 +50,7 @@ const globalStore = GlobalStore();
 
 const imgsrc = ref("/v1/captcha");
 
-// 定义 formRef（校验规则）
+// 定义 formRef（校验规则）api/user/login
 type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
@@ -59,7 +59,7 @@ const loginRules = reactive({
 });
 
 const loading = ref(false);
-const loginForm = reactive<Login.ReqLoginForm>({ username: "user", password: "123456" });
+const loginForm = reactive<Login.ReqLoginForm>({ username: "root", password: "123456" });
 const login = (formEl: FormInstance | undefined) => {
 	if (!formEl) return;
 	formEl.validate(async valid => {
@@ -67,24 +67,20 @@ const login = (formEl: FormInstance | undefined) => {
 		loading.value = true;
 		try {
 			// 1.执行登录接口
-
-			// let excelFormData = new FormData();
-			// excelFormData.append("username", loginForm.username);
-			// excelFormData.append("password", loginForm.password);
-			// const res = await http.post<Login.ResLogin>("/user/login", excelFormData, {
-			// 	headers: { noLoading: true, "Content-Type": "application/x-www-form-urlencoded" }
-			// });
-			// console.log(res);
+			let excelFormData = new FormData();
+			excelFormData.append("username", loginForm.username);
+			excelFormData.append("password", loginForm.password);
+			const res = await http.post<Login.ResLogin>("/user/login", excelFormData, {
+				headers: { noLoading: true, "Content-Type": "application/x-www-form-urlencoded" }
+			});
+			console.log(res);
 			const { data } = await loginApi({ ...loginForm, password: md5(loginForm.password) });
 			globalStore.setToken(data.access_token);
-
 			// 2.添加动态路由
 			await initDynamicRouter();
-
 			// 3.清空 tabs、keepAlive 保留的数据
 			tabsStore.closeMultipleTab();
 			keepAlive.setKeepAliveName();
-
 			// 4.跳转到首页
 			router.push(HOME_URL);
 			ElNotification({
@@ -109,7 +105,7 @@ const refreshSRC = () => {
 	imgsrc.value = "";
 	setTimeout(() => {
 		imgsrc.value = "/v1/captcha";
-	}, 1000);
+	}, 500);
 };
 
 onMounted(() => {

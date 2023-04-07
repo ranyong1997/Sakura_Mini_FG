@@ -70,7 +70,7 @@ const login = (formEl: FormInstance | undefined) => {
 			let excelFormData = new FormData();
 			excelFormData.append("username", loginForm.username);
 			excelFormData.append("password", loginForm.password);
-			const res = await http.post<Login.ResLogin>("/user/login", excelFormData, {
+			const res = await http.post<Login.ResLogin>("/user/login", {
 				headers: { noLoading: true, "Content-Type": "application/x-www-form-urlencoded" }
 			});
 			console.log(res);
